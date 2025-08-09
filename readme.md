@@ -41,3 +41,5 @@ python -m venv <folder_name_of_virtual_environment>
 by this you will have a safe environment to install package 
 
 run ``pip install requirement.txt`` in terminal.
+
+for document on how to use api, go to localhost:9999/docs 
