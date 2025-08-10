@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI
-from app.api import register_face, health, recognize
+from app.api import register_face, health, recognize, verify
 
 
 
@@ -14,3 +14,4 @@ app = FastAPI(
 app.include_router(health.router, prefix="/api/v1", tags=["Monitoring"])
 app.include_router(register_face.router, prefix="/api/v1", tags=["Registration"])
 app.include_router(recognize.router, prefix="/api/v1", tags=["Recognition"])
+app.include_router(verify.router, prefix="/api/v1", tags=["Verification"])

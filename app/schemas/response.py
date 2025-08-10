@@ -30,3 +30,14 @@ class RecognizeResponse(BaseModel):
                 "user_id": "123e4567-e89b-12d3-a456-426614174000"
             }
         }
+
+class VerifyResponse(BaseModel):
+    """Defines the verification response schema."""
+    verified: bool = Field(..., description="True if the face matches the given face_id.")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "verified": True
+            }
+        }        

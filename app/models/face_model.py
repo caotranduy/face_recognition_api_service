@@ -33,6 +33,27 @@ class FaceModel:
         """Saves face encodings to the pickle file."""
         with open(config.ENCODINGS_DB_PATH, 'wb') as f:
             pickle.dump(encodings_data, f)
+    
+    def _get_single_face_encoding(self, image_bytes: bytes) -> np.ndarray:
+        """
+        A helper function to find exactly one face and return its encoding.
+        This function is reused by register, recognize, and verify.
+        """
+        image_np = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
+        if img is None:
+            raise ValueError("Could not decode image.")
+
+        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        dets = self.detector(rgb_img, 1)
+
+        if len(dets) == 0:
+            raise ValueError("No face detected.")
+        if len(dets) > 1:
+            raise ValueError("Multiple faces detected.")
+        
+        shape = self.sp(rgb_img, dets[0])
+        return np.array(self.facerec.compute_face_descriptor(rgb_img, shape))
 
     def register_new_face(self, image_bytes: bytes) -> uuid.UUID:
         """
@@ -129,6 +150,21 @@ class FaceModel:
         
         logging.info("No match found within tolerance.")
         return (False, None)
+    
+    def verify_face(self, image_bytes: bytes, face_id_to_verify: uuid.UUID) -> bool:
+        """Verifies if a face matches a specific known face ID (1-to-1 comparison)."""
+        known_encodings_data = self._load_encodings()
+        known_encoding = known_encodings_data.get(face_id_to_verify)
+
+        if known_encoding is None:
+            logging.warning(f"Verification attempted for non-existent face_id: {face_id_to_verify}")
+            return False
+
+        unknown_encoding = self._get_single_face_encoding(image_bytes)
+        
+        distance = np.linalg.norm(known_encoding - unknown_encoding)
+        
+        return distance <= config.FACE_RECOGNITION_TOLERANCE
 
 # Instantiate the model once to be reused across the application
 face_model_instance = FaceModel()
