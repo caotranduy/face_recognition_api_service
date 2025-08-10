@@ -1,8 +1,13 @@
 Face Registration and Recognition API Service
 ===
 Cornerstone: TDG Cao Tran Duy
+
+## Purpose of the repo:
+this repository contains backbone code for Face Registration and Recognition API Service, implemented into our group's *small* check-in, check-out application system project
+
 ## Requirement:
 project was developed to run on *NVIDIA GTX 1650*
+
 ## Prerequisite:
 >dlib 19.24.2 (or later)
 * Instruction:
@@ -38,8 +43,8 @@ you can initialize virtual environment by command
 ```bash
 python -m venv <folder_name_of_virtual_environment>
 ```
-by this you will have a safe environment to install package 
+by this you will have a safe environment to install packages 
 
-run ``pip install requirement.txt`` in terminal.
+run ``pip install requirements.txt`` in terminal.
 
 for document on how to use api, go to localhost:9999/docs 
