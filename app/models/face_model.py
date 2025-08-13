@@ -35,10 +35,11 @@ class FaceModel:
         with open(config.ENCODINGS_DB_PATH, 'wb') as f:
             pickle.dump(encodings_data, f)
 
-    def _get_single_face_details(self, image_bytes: bytes) -> tuple:
+    def _get_single_face_encoding(self, image_bytes: bytes) -> tuple:
         """
         A helper function to find exactly one face and return its details:
         the encoding, the original image array, and the face rectangle.
+
         """
         image_np = np.frombuffer(image_bytes, np.uint8)
         img = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
@@ -57,7 +58,8 @@ class FaceModel:
         shape = self.sp(rgb_img, face_rect)
         face_encoding = np.array(self.facerec.compute_face_descriptor(rgb_img, shape))
         
-        return face_encoding, img, face_rect      
+        return face_encoding, img, face_rect   
+
 
     def register_new_face(self, image_bytes: bytes) -> uuid.UUID:
         """
@@ -168,7 +170,7 @@ class FaceModel:
             logging.warning(f"Verification attempted for non-existent face_id: {face_id_to_verify}")
             return False
 
-        unknown_encoding = self._get_single_face_encoding(image_bytes)
+        unknown_encoding, original_image, face_rect = self._get_single_face_encoding(image_bytes)
         
         distance = np.linalg.norm(known_encoding - unknown_encoding)
         
