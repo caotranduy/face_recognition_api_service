@@ -5,6 +5,7 @@ import numpy as np
 import pickle
 import uuid
 import logging
+import os
 from app.core import config
 
 class FaceModel:
@@ -33,11 +34,11 @@ class FaceModel:
         """Saves face encodings to the pickle file."""
         with open(config.ENCODINGS_DB_PATH, 'wb') as f:
             pickle.dump(encodings_data, f)
-    
-    def _get_single_face_encoding(self, image_bytes: bytes) -> np.ndarray:
+
+    def _get_single_face_details(self, image_bytes: bytes) -> tuple:
         """
-        A helper function to find exactly one face and return its encoding.
-        This function is reused by register, recognize, and verify.
+        A helper function to find exactly one face and return its details:
+        the encoding, the original image array, and the face rectangle.
         """
         image_np = np.frombuffer(image_bytes, np.uint8)
         img = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
@@ -52,8 +53,11 @@ class FaceModel:
         if len(dets) > 1:
             raise ValueError("Multiple faces detected.")
         
-        shape = self.sp(rgb_img, dets[0])
-        return np.array(self.facerec.compute_face_descriptor(rgb_img, shape))
+        face_rect = dets[0]
+        shape = self.sp(rgb_img, face_rect)
+        face_encoding = np.array(self.facerec.compute_face_descriptor(rgb_img, shape))
+        
+        return face_encoding, img, face_rect      
 
     def register_new_face(self, image_bytes: bytes) -> uuid.UUID:
         """
@@ -68,30 +72,34 @@ class FaceModel:
         Raises:
             ValueError: If no face or multiple faces are detected.
         """
-        image_np = np.frombuffer(image_bytes, np.uint8)
-        img = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
-        
-        if img is None:
-            raise ValueError("Could not decode image.")
 
-        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        dets = self.detector(rgb_img, 1)
-
-        if len(dets) == 0:
-            raise ValueError("No face detected.")
-        if len(dets) > 1:
-            raise ValueError("Multiple faces detected.")
-
-        shape = self.sp(rgb_img, dets[0])
-        face_encoding = np.array(self.facerec.compute_face_descriptor(rgb_img, shape))
+        face_encoding, original_image, face_rect = self._get_single_face_details(image_bytes)
         
         known_encodings = self._load_encodings()
-        new_user_id = uuid.uuid4()
-        known_encodings[new_user_id] = face_encoding
+        new_face_id = uuid.uuid4()
+        known_encodings[new_face_id] = face_encoding
         self._save_encodings(known_encodings)
         
-        logging.info(f"Successfully registered new face with ID: {new_user_id}")
-        return new_user_id
+        logging.info(f"Successfully registered new face with ID: {new_face_id}")
+
+        try:
+            face_encoding, original_image, face_rect = self._get_single_face_details(image_bytes)      
+            # Get coordinates and add some padding
+            top, right, bottom, left = face_rect.top(), face_rect.right(), face_rect.bottom(), face_rect.left()
+            padding = 20
+            # Crop the original image (use BGR image from cv2.imdecode)
+            cropped_face = original_image[max(0, top-padding):bottom+padding, max(0, left-padding):right+padding]
+            
+            # Create filename and save path
+            filename = f"{new_face_id}.jpg"
+            save_path = os.path.join(config.CROPPED_FACES_DIR, filename)
+            
+            cv2.imwrite(save_path, cropped_face)
+            logging.info(f"Successfully saved cropped face image to: {save_path}")
+        except Exception as e:
+            logging.error(f"Failed to save cropped face image: {e}")
+
+        return new_face_id
     
     def recognize_face(self, image_bytes: bytes) -> Tuple[bool, Optional[uuid.UUID]]:
         """
