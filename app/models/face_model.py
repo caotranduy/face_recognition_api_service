@@ -75,7 +75,7 @@ class FaceModel:
             ValueError: If no face or multiple faces are detected.
         """
 
-        face_encoding, original_image, face_rect = self._get_single_face_details(image_bytes)
+        face_encoding, original_image, face_rect = self._get_single_face_encoding(image_bytes)
         
         known_encodings = self._load_encodings()
         new_face_id = uuid.uuid4()
@@ -85,7 +85,7 @@ class FaceModel:
         logging.info(f"Successfully registered new face with ID: {new_face_id}")
 
         try:
-            face_encoding, original_image, face_rect = self._get_single_face_details(image_bytes)      
+            face_encoding, original_image, face_rect = self._get_single_face_encoding(image_bytes)      
             # Get coordinates and add some padding
             top, right, bottom, left = face_rect.top(), face_rect.right(), face_rect.bottom(), face_rect.left()
             padding = 20
