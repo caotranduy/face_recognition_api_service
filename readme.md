@@ -6,7 +6,7 @@ Cornerstone: TDG Cao Tran Duy
 this repository contains backbone code for Face Registration and Recognition API Service, implemented into our group's *small* check-in, check-out application system project
 
 ## Requirement:
-project was developed to run on *NVIDIA GTX 1650*
+project was developed to run on *NVIDIA GTX 1650* (for more detailed specification of the hardware, check below)
 
 ## Prerequisite:
 >dlib 19.24.2 (or later)
@@ -48,3 +48,27 @@ by this you will have a safe environment to install packages
 run ``pip install -r requirements.txt`` in terminal.
 
 for document on how to use api, go to localhost:9999/docs 
+
+My GTX 1650 specs:
+
+<img width="931" height="394" alt="image" src="https://github.com/user-attachments/assets/723a4c1c-0822-4a98-b296-6641321dc038" />
+
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 566.14                 Driver Version: 566.14         CUDA Version: 12.7     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce GTX 1650      WDDM  |   00000000:01:00.0 Off |                  N/A |
+| N/A   43C    P8              1W /   65W |       1MiB /   4096MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
