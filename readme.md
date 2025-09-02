@@ -1,6 +1,7 @@
 Face Registration and Recognition API Service
 ===
 Cornerstone: TDG Cao Tran Duy
+*this repo got adapted into [this college project](https://github.com/NguyenGiaKiet2004/BE_Python_TTNT)
 
 ## Purpose of the repo:
 this repository contains backbone code for Face Registration and Recognition API Service, implemented into our group's *small* check-in, check-out application system project
